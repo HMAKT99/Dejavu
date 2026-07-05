@@ -64,13 +64,36 @@ export function registerInit(program: Command): void {
   program
     .command('init')
     .description('initialize DejaVu in this repository (DECISIONS.md + .dejavu/)')
-    .action(async () => {
+    .option('--hooks', 'also install the pre-commit hook (dejavu check --staged)')
+    .action(async (flags: { hooks?: boolean }) => {
       const created = await initAction(defaultIo());
       if (created.length === 0) {
         info('already initialized — DECISIONS.md untouched');
-        return;
+      } else {
+        for (const p of created) ok(`created ${p}`);
       }
-      for (const p of created) ok(`created ${p}`);
-      info('\nNext: dejavu remember "your first decision" — or commit DECISIONS.md as-is.');
+
+      let wantHook = flags.hooks ?? false;
+      if (!wantHook && created.length > 0 && process.stdout.isTTY && process.stdin.isTTY) {
+        const p = await import('@clack/prompts');
+        const answer = await p.confirm({
+          message:
+            'Install the pre-commit hook? (warns about contradictions/duplicates; never blocks)',
+          initialValue: true,
+        });
+        wantHook = answer === true;
+      }
+      if (wantHook) {
+        const { installHook } = await import('./hooks.js');
+        const result = await installHook(defaultIo(), false);
+        if (result === 'installed' || result === 'updated')
+          ok('pre-commit hook installed (warn-only)');
+        else if (result === 'refused-foreign')
+          info('existing pre-commit hook left alone — add `dejavu check --staged` to it yourself');
+      }
+
+      if (created.length > 0) {
+        info('\nNext: dejavu remember "your first decision" — or commit DECISIONS.md as-is.');
+      }
     });
 }
