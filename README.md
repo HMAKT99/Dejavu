@@ -1,5 +1,10 @@
 # DejaVu
 
+[![CI](https://github.com/HMAKT99/Dejavu/actions/workflows/ci.yml/badge.svg)](https://github.com/HMAKT99/Dejavu/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dejavu-dev?color=a371f7&label=npm)](https://www.npmjs.com/package/dejavu-dev)
+[![node](https://img.shields.io/node/v/dejavu-dev?color=3fb950)](https://github.com/HMAKT99/Dejavu#quick-start)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+
 **Your AI already wrote this.** DejaVu gives your codebase a memory that every coding agent shares — and none can ignore.
 
 ```

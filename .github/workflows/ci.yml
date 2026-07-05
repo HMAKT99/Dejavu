@@ -24,6 +24,21 @@ jobs:
       - run: npm test
       - run: npm run build
 
+  windows-experimental:
+    # Informational: the supported Windows story is WSL (see README non-goals).
+    # This job tells us empirically how close native Windows is — it does not
+    # block the build.
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
   pack-smoke:
     # The artifact users actually get: pack the tarball, install it into a
     # clean project, run the CLI end to end.
