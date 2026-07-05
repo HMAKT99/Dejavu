@@ -25,6 +25,8 @@ export interface CheckReport {
   duplicates: DuplicateFinding[];
   badPatterns: CompileResult['badPatterns'];
   scannedFiles: number;
+  /** No DECISIONS.md in this repo — duplication ran, contradictions couldn't. */
+  ledgerMissing: boolean;
 }
 
 export async function checkAction(
@@ -35,7 +37,7 @@ export async function checkAction(
   const ws = await resolveWorkspace({ cwd: io.cwd, global: false, env: io.env });
   await healIndex(ws);
   const root = ws.displayRoot;
-  const { ledger } = await loadLedger(ws.ledgerLoc);
+  const { ledger, fresh: ledgerMissing } = await loadLedger(ws.ledgerLoc);
   const compiled = compileRules(ledger);
 
   // Which files are "under review" vs "context"?
@@ -81,7 +83,13 @@ export async function checkAction(
   }
 
   const duplicates = changedSet.size > 0 ? index.checkFiles(changedSet) : [];
-  return { contradictions, duplicates, badPatterns: compiled.badPatterns, scannedFiles };
+  return {
+    contradictions,
+    duplicates,
+    badPatterns: compiled.badPatterns,
+    scannedFiles,
+    ledgerMissing,
+  };
 }
 
 export function printReport(report: CheckReport): void {
@@ -118,6 +126,11 @@ export function registerCheck(program: Command): void {
       const report = await checkAction(flags, files, defaultIo());
       const total = report.contradictions.length + report.duplicates.length;
 
+      if (report.ledgerMissing) {
+        info(
+          'no DECISIONS.md here — duplication radar ran, but there are no decisions to enforce yet. Start with: dejavu init',
+        );
+      }
       if (report.scannedFiles === 0) {
         info('nothing to check — no changed files (try --all or pass files)');
         return;

@@ -104,6 +104,26 @@ describe('dejavu check', () => {
     expect(report.contradictions).toEqual([]);
   });
 
+  it('.dejavu/config.json exclude globs remove files from every scan', async () => {
+    write('templates/variant-a.ts', SLUGIFY);
+    write('templates/variant-b.ts', SLUGIFY_CLONE);
+    write('.dejavu/config.json', JSON.stringify({ exclude: ['templates/**'] }));
+    const report = await checkAction({ all: true }, [], io);
+    expect(report.duplicates).toEqual([]);
+    const card = await scoreAction(io);
+    expect(card.input.totalFunctions).toBe(0); // both template files excluded
+  });
+
+  it('caps regex matching on pathological long lines (ReDoS bound)', async () => {
+    // A 200KB single-line "minified" file — must complete instantly.
+    write('src/api/minified.ts', `${'x.user_id === y; '.repeat(11000)}\n`);
+    const started = Date.now();
+    const report = await checkAction({}, [], io);
+    expect(Date.now() - started).toBeLessThan(3000);
+    // The pattern still fires within the capped slice.
+    expect(report.contradictions.some((c) => c.file === 'src/api/minified.ts')).toBe(true);
+  });
+
   it('a clean changed file reports nothing', async () => {
     write('src/api/clean.ts', 'export const ok = () => auth.viaRls();\n');
     const report = await checkAction({}, [], io);

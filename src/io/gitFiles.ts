@@ -31,6 +31,31 @@ export function isExcluded(rel: string): boolean {
   );
 }
 
+/**
+ * User-defined exclusions: `.dejavu/config.json` → `{"exclude": ["glob", ...]}`.
+ * For repos with INTENTIONAL duplication (scaffolding templates, fixtures)
+ * that would otherwise dominate `check`/`score`.
+ */
+export async function loadUserExcludes(root: string): Promise<string[]> {
+  try {
+    const raw = await fs.readFile(path.join(root, '.dejavu', 'config.json'), 'utf8');
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed?.exclude)) {
+      return parsed.exclude.filter((g: unknown): g is string => typeof g === 'string');
+    }
+  } catch {
+    /* no config or invalid — no user excludes */
+  }
+  return [];
+}
+
+async function applyUserExcludes(root: string, rels: string[]): Promise<string[]> {
+  const globs = await loadUserExcludes(root);
+  if (globs.length === 0) return rels;
+  const { matchesAny } = await import('../enforce/glob.js');
+  return rels.filter((r) => !matchesAny(r, globs));
+}
+
 async function git(root: string, args: string[]): Promise<string> {
   const { stdout } = await execFileP('git', args, { cwd: root, maxBuffer: 64 * 1024 * 1024 });
   return stdout;
@@ -53,20 +78,26 @@ export async function changedFiles(root: string, stagedOnly: boolean): Promise<s
           const arrow = p.indexOf(' -> ');
           return arrow === -1 ? p : p.slice(arrow + 4);
         });
-  return rels.map(unquote).filter((r) => !isExcluded(r));
+  return applyUserExcludes(
+    root,
+    rels.map(unquote).filter((r) => !isExcluded(r)),
+  );
 }
 
 /** All tracked + untracked-but-not-ignored files (score / --all scope). */
 export async function allRepoFiles(root: string): Promise<string[]> {
   try {
     const out = await git(root, ['ls-files', '--cached', '--others', '--exclude-standard']);
-    return out
-      .split('\n')
-      .filter(Boolean)
-      .map(unquote)
-      .filter((r) => !isExcluded(r));
+    return applyUserExcludes(
+      root,
+      out
+        .split('\n')
+        .filter(Boolean)
+        .map(unquote)
+        .filter((r) => !isExcluded(r)),
+    );
   } catch {
-    return walkDir(root, '');
+    return applyUserExcludes(root, await walkDir(root, ''));
   }
 }
 

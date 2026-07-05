@@ -10,8 +10,8 @@ export function registerServe(program: Command): void {
     )
     .action(async () => {
       const ws = await resolveWorkspace({ cwd: process.cwd(), global: false });
+      // Blocks until the client disconnects, then exits cleanly — no zombie
+      // servers left behind when the agent that spawned us goes away.
       await serveStdio({ root: ws.displayRoot, ledgerLoc: ws.ledgerLoc });
-      // keep the process alive; the transport owns stdin/stdout now
-      await new Promise(() => {});
     });
 }

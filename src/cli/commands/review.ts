@@ -146,6 +146,22 @@ export function registerReview(program: Command): void {
     });
 }
 
+/** "src/api/**, supabase/**" → globs. Exported for tests. */
+export function parseAppliesToInput(input: string): string[] {
+  return input
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s !== '');
+}
+
+/** Detect patterns separated by `;;` (regexes may contain commas/pipes). Exported for tests. */
+export function parseDetectInput(input: string): string[] {
+  return input
+    .split(';;')
+    .map((s) => s.trim())
+    .filter((s) => s !== '');
+}
+
 async function editDraft(draft: DecisionDraft): Promise<DecisionDraft | null> {
   const title = await p.text({
     message: 'Title',
@@ -166,6 +182,28 @@ async function editDraft(draft: DecisionDraft): Promise<DecisionDraft | null> {
   });
   if (p.isCancel(rule)) return null;
 
+  const appliesTo = await p.text({
+    message: 'applies_to globs, comma-separated (e.g. src/api/**) — empty to omit',
+    initialValue: (draft.appliesTo ?? []).join(', '),
+  });
+  if (p.isCancel(appliesTo)) return null;
+
+  const detect = await p.text({
+    message: 'detect regex(es), separate multiple with ;; — empty to omit',
+    initialValue: (draft.detect ?? []).join(' ;; '),
+    validate: (v) => {
+      for (const pattern of parseDetectInput(v ?? '')) {
+        try {
+          new RegExp(pattern);
+        } catch {
+          return `not a valid regex: ${pattern}`;
+        }
+      }
+      return undefined;
+    },
+  });
+  if (p.isCancel(detect)) return null;
+
   const next: DecisionDraft = { ...draft, title: (title as string).trim() };
   const ctx = (context as string).trim();
   const rl = (rule as string).trim();
@@ -173,5 +211,11 @@ async function editDraft(draft: DecisionDraft): Promise<DecisionDraft | null> {
   else delete next.context;
   if (rl !== '') next.rule = rl;
   else delete next.rule;
+  const globs = parseAppliesToInput(appliesTo as string);
+  if (globs.length > 0) next.appliesTo = globs;
+  else delete next.appliesTo;
+  const patterns = parseDetectInput(detect as string);
+  if (patterns.length > 0) next.detect = patterns;
+  else delete next.detect;
   return next;
 }

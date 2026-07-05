@@ -12,6 +12,26 @@ export interface TranscriptMessage {
   timestamp?: string;
 }
 
+/**
+ * The working directory a session ran in, when the transcript records one
+ * (Claude Code puts `cwd` on message lines; OpenClaw on its session header).
+ * null = unknown → callers must NOT filter the session out.
+ */
+export function sessionCwd(jsonl: string): string | null {
+  let inspected = 0;
+  for (const line of jsonl.split('\n')) {
+    if (line.trim() === '' || inspected >= 25) break;
+    inspected++;
+    try {
+      const obj = JSON.parse(line);
+      if (typeof obj.cwd === 'string' && obj.cwd !== '') return obj.cwd;
+    } catch {
+      /* skip */
+    }
+  }
+  return null;
+}
+
 export function parseTranscript(jsonl: string): TranscriptMessage[] {
   const out: TranscriptMessage[] = [];
   for (const line of jsonl.split('\n')) {

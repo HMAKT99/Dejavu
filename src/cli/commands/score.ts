@@ -73,6 +73,14 @@ export function registerScore(program: Command): void {
         `  decisions       ${bar(card.components.hygiene, 20)}  ${card.components.hygiene}/20  ${pc.dim(`(${card.input.activeDecisionCount} active, ${card.input.enforceableDecisionCount} enforceable)`)}`,
       );
       console.log();
+      if (card.input.activeDecisionCount === 0) {
+        console.log(
+          pc.dim(
+            '  no decisions recorded yet — `dejavu init` then `dejavu mine` to earn the hygiene points',
+          ),
+        );
+        console.log();
+      }
       console.log(pc.dim(`  My repo scores ${card.grade}. What's yours? → npx dejavu-dev score`));
       console.log();
     });

@@ -7,6 +7,9 @@ import { matchesAny } from './glob.js';
  * in file contents.
  */
 
+/** Longest line slice a detect: pattern is matched against (ReDoS bound). */
+const MAX_MATCH_LINE = 1000;
+
 export interface ContradictionFinding {
   kind: 'contradiction';
   decision: Pick<Decision, 'id' | 'title' | 'rule'>;
@@ -69,7 +72,11 @@ export function checkFileForContradictions(
   for (const rule of applicable) {
     let hits = 0;
     for (let i = 0; i < lines.length && hits < 5; i++) {
-      const line = lines[i]!;
+      // detect: regexes come from DECISIONS.md, which arrives via git clone —
+      // bound the input so a pathological pattern can't melt the CPU on
+      // minified/generated lines. Real source lines fit well under the cap.
+      const line =
+        lines[i]!.length > MAX_MATCH_LINE ? lines[i]!.slice(0, MAX_MATCH_LINE) : lines[i]!;
       if (rule.patterns.some((p) => p.test(line))) {
         hits++;
         findings.push({

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseAppliesToInput, parseDetectInput } from '../src/cli/commands/review.js';
 import { makeQueueItem, parseQueue, serializeQueue } from '../src/core/queue.js';
 
 const OPTS = {
@@ -29,6 +30,21 @@ describe('queue JSONL', () => {
   it('empty queue serializes to empty string, parses to empty list', () => {
     expect(serializeQueue([])).toBe('');
     expect(parseQueue('')).toEqual({ items: [], badLines: [] });
+  });
+
+  it('review edit-flow input parsing: applies_to commas, detect ;; separator', () => {
+    expect(parseAppliesToInput(' src/api/** , supabase/** ')).toEqual([
+      'src/api/**',
+      'supabase/**',
+    ]);
+    expect(parseAppliesToInput('')).toEqual([]);
+    // regexes keep their commas and pipes intact
+    expect(parseDetectInput('user_id\\s*===? ;; require\\([\'"](moment|luxon)')).toEqual([
+      'user_id\\s*===?',
+      'require\\([\'"](moment|luxon)',
+    ]);
+    expect(parseDetectInput('foo{1,3}bar')).toEqual(['foo{1,3}bar']);
+    expect(parseDetectInput('')).toEqual([]);
   });
 
   it('tolerates unknown extra fields (forward compat with miners)', () => {

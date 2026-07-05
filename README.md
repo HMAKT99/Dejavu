@@ -78,6 +78,14 @@ Plain markdown, fully useful with zero tooling. `applies_to:` globs and `detect:
 
 **CI:** the [GitHub Action](docs/ci.md) runs `check` + projection staleness on any repo — including ones built entirely on web platforms (Lovable, Replit, Bolt), since the repo carries the ledger.
 
+## Configuration
+
+Repos with *intentional* duplication (scaffolding templates, fixtures) can exclude paths from `check`/`score` via `.dejavu/config.json`:
+
+```json
+{ "exclude": ["cli/template/**", "fixtures/**"] }
+```
+
 ## Performance
 
 `dejavu check` and `dejavu score` complete in **under 1 second on a 50k-LOC repo** (~2,400 functions) — measured, not aspirational. Pre-commit tolerance was the design budget (3s); heuristic extraction + normalized-token shingles with an inverted index get there without embeddings, AST parsers, or the network.

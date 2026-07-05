@@ -136,6 +136,15 @@ Prose line.
     expect(ledger.idPrefix).toBe('G');
   });
 
+  it('CRLF line endings parse identically to LF (autocrlf checkouts)', () => {
+    const lf = `## D-001: Use pnpm\n- date: 2026-01-01 · source: manual · status: active\n- rule: pnpm only\n`;
+    const crlf = lf.replace(/\n/g, '\r\n');
+    const a = parseLedger(lf);
+    const b = parseLedger(crlf);
+    expect(b.ledger).toEqual(a.ledger);
+    expect(b.ledger.decisions[0]!.rule).toBe('pnpm only'); // no trailing \r
+  });
+
   it('handles empty input', () => {
     const { ledger, warnings } = parseLedger('');
     expect(ledger.decisions).toEqual([]);

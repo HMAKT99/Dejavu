@@ -13,6 +13,11 @@
     "vibecoding"
   ],
   "license": "Apache-2.0",
+  "author": "AKT99! <arunkt.bm14@gmail.com>",
+  "homepage": "https://github.com/HMAKT99/Dejavu#readme",
+  "bugs": {
+    "url": "https://github.com/HMAKT99/Dejavu/issues"
+  },
   "type": "module",
   "bin": {
     "dejavu": "dist/cli.js"
@@ -30,7 +35,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "biome check src tests",
-    "format": "biome format --write src tests"
+    "format": "biome format --write src tests",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "repository": {
     "type": "git",

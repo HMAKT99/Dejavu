@@ -51,6 +51,8 @@ function pickAdapters(flags: ProjectFlags, entries: string[]): ProjectionAdapter
 export interface ProjectSummary {
   results: ProjectResult[];
   stale: string[];
+  /** No DECISIONS.md in this repo yet. */
+  ledgerMissing?: boolean;
 }
 
 export async function projectAction(flags: ProjectFlags, io: ActionIo): Promise<ProjectSummary> {
@@ -76,7 +78,7 @@ export async function projectAction(flags: ProjectFlags, io: ActionIo): Promise<
     return { results, stale };
   }
 
-  const { ledger } = await loadLedger(ws.ledgerLoc);
+  const { ledger, fresh: ledgerMissing } = await loadLedger(ws.ledgerLoc);
 
   if (flags.check) {
     const content = renderProjectBlock(ledger);
@@ -84,7 +86,7 @@ export async function projectAction(flags: ProjectFlags, io: ActionIo): Promise<
     for (const rel of await targetsWithBlocks(root, rels)) {
       if (!(await projectionIsCurrent(root, rel, content))) stale.push(rel);
     }
-    return { results, stale };
+    return { results, stale, ledgerMissing };
   }
 
   const seen = new Set<string>();
@@ -108,7 +110,7 @@ export async function projectAction(flags: ProjectFlags, io: ActionIo): Promise<
     }
   }
 
-  return { results, stale };
+  return { results, stale, ledgerMissing };
 }
 
 /**
@@ -171,7 +173,13 @@ export function registerProject(program: Command): void {
     .option('--check', 'exit 1 if any existing projection is stale (CI mode)')
     .option('--no-global', 'skip machine-level preferences (local context files)')
     .action(async (flags: ProjectFlags) => {
-      const { results, stale } = await projectAction(flags, defaultIo());
+      const { results, stale, ledgerMissing } = await projectAction(flags, defaultIo());
+
+      if (ledgerMissing) {
+        info(
+          'no DECISIONS.md here — projecting an empty ledger. Start with: dejavu init && dejavu remember "..."',
+        );
+      }
 
       if (flags.check) {
         if (stale.length > 0) {

@@ -1,0 +1,47 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  pack-smoke:
+    # The artifact users actually get: pack the tarball, install it into a
+    # clean project, run the CLI end to end.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - run: npm pack
+      - run: |
+          mkdir -p /tmp/smoke/app && cd /tmp/smoke/app
+          git init -q && npm init -y >/dev/null
+          npm install "$GITHUB_WORKSPACE"/dejavu-dev-*.tgz
+          export DEJAVU_HOME=/tmp/smoke/home
+          npx dejavu --version
+          npx dejavu init
+          npx dejavu remember "ci smoke decision" --rule "packed artifact must work"
+          npx dejavu check --all
+          npx dejavu score --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{JSON.parse(s);console.log('score --json parses')})"

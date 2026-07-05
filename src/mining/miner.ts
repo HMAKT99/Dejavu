@@ -1,8 +1,9 @@
 import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import type { Ledger, QueueItem } from '../core/types.js';
 import { candidateFingerprint, type MinedCandidate, mineText } from './heuristics.js';
 import { claudeCodeSessions, openclawSessions, type SessionFile } from './sources.js';
-import { parseTranscript } from './transcript.js';
+import { parseTranscript, sessionCwd } from './transcript.js';
 
 /**
  * Mining pipeline: sessions + #decision: comments → deduped candidates.
@@ -44,12 +45,18 @@ export function mineComments(rel: string, content: string): MinedItem[] {
 export async function mineSessionFile(
   session: SessionFile,
   source: MiningSource,
+  /** When set, sessions that RECORD a different cwd are skipped (unknown cwd is kept). */
+  onlyCwd?: string,
 ): Promise<MinedItem[]> {
   let raw: string;
   try {
     raw = await fs.readFile(session.file, 'utf8');
   } catch {
     return [];
+  }
+  if (onlyCwd !== undefined) {
+    const cwd = sessionCwd(raw);
+    if (cwd !== null && path.resolve(cwd) !== path.resolve(onlyCwd)) return [];
   }
   const out: MinedItem[] = [];
   for (const msg of parseTranscript(raw)) {
@@ -77,8 +84,9 @@ export async function mineSessions(
     }
   }
   if (sources.includes('openclaw')) {
+    // OpenClaw sessions are per-agent, not per-repo — scope by recorded cwd.
     for (const s of await openclawSessions(env)) {
-      out.push(...(await mineSessionFile(s, 'openclaw')));
+      out.push(...(await mineSessionFile(s, 'openclaw', repoRoot)));
     }
   }
   return out;

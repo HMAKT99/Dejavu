@@ -140,6 +140,7 @@ export function createServer(ctx: ServeContext): Server {
   return server;
 }
 
+/** Resolves when the client disconnects — callers should then exit. */
 export async function serveStdio(ctx: ServeContext): Promise<void> {
   const server = createServer(ctx);
   const transport = new StdioServerTransport();
@@ -148,4 +149,10 @@ export async function serveStdio(ctx: ServeContext): Promise<void> {
   console.error(
     `dejavu MCP server ready (${ctx.root}) — tools: ${TOOLS.map((t) => t.name).join(', ')}`,
   );
+  await new Promise<void>((resolve) => {
+    server.onclose = resolve;
+    // Belt and braces: some clients just drop the pipe without a clean close.
+    process.stdin.once('end', resolve);
+    process.stdin.once('close', resolve);
+  });
 }

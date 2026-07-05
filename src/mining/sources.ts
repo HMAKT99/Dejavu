@@ -34,13 +34,28 @@ export async function claudeCodeSessions(
   return listJsonl(dir, 'claude-code');
 }
 
-/** OpenClaw: $DEJAVU_OPENCLAW_SESSIONS or ~/.openclaw/sessions — cwd-filtered later. */
+/**
+ * OpenClaw: transcripts live at ~/.openclaw/agents/<agentId>/sessions/*.jsonl
+ * (verified against the OpenClaw docs). $DEJAVU_OPENCLAW_SESSIONS overrides
+ * with a flat directory of .jsonl files (tests, unusual setups). Sessions are
+ * cwd-filtered by the miner via their session header.
+ */
 export async function openclawSessions(env: NodeJS.ProcessEnv): Promise<SessionFile[]> {
-  const dir =
-    env.DEJAVU_OPENCLAW_SESSIONS && env.DEJAVU_OPENCLAW_SESSIONS !== ''
-      ? env.DEJAVU_OPENCLAW_SESSIONS
-      : path.join(os.homedir(), '.openclaw', 'sessions');
-  return listJsonl(dir, 'openclaw');
+  if (env.DEJAVU_OPENCLAW_SESSIONS && env.DEJAVU_OPENCLAW_SESSIONS !== '') {
+    return listJsonl(env.DEJAVU_OPENCLAW_SESSIONS, 'openclaw');
+  }
+  const agentsDir = path.join(os.homedir(), '.openclaw', 'agents');
+  let agents: string[];
+  try {
+    agents = await fs.readdir(agentsDir);
+  } catch {
+    return [];
+  }
+  const out: SessionFile[] = [];
+  for (const agent of agents) {
+    out.push(...(await listJsonl(path.join(agentsDir, agent, 'sessions'), 'openclaw')));
+  }
+  return out.slice(0, MAX_SESSIONS);
 }
 
 async function listJsonl(dir: string, tool: string): Promise<SessionFile[]> {

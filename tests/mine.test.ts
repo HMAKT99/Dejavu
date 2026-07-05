@@ -143,6 +143,32 @@ describe('dejavu mine', () => {
     expect(summary.queued[0]!.source).toBe('openclaw');
   });
 
+  it('OpenClaw sessions recording a different cwd are skipped; unknown cwd is kept', async () => {
+    const ocDir = path.join(sb.home, 'openclaw-sessions');
+    mkdirSync(ocDir, { recursive: true });
+    const header = (cwd: string) => JSON.stringify({ type: 'session', id: 's', cwd });
+    const msg = (text: string) =>
+      JSON.stringify({ type: 'user', message: { role: 'user', content: text } });
+    writeFileSync(
+      path.join(ocDir, 'other-project.jsonl'),
+      `${header('/somewhere/else')}\n${msg('from now on, use spaces not tabs here')}\n`,
+    );
+    writeFileSync(
+      path.join(ocDir, 'this-project.jsonl'),
+      `${header(sb.repo)}\n${msg('from now on, run migrations before deploys')}\n`,
+    );
+    writeFileSync(
+      path.join(ocDir, 'no-cwd.jsonl'),
+      `${msg('we should never log secrets to the console')}\n`,
+    );
+    const summary = await mineAction(
+      { source: ['openclaw'] },
+      { ...io, env: { ...io.env, DEJAVU_OPENCLAW_SESSIONS: ocDir } },
+    );
+    const titles = summary.queued.map((c) => c.title).sort();
+    expect(titles).toEqual(['Never log secrets to the console', 'run migrations before deploys']);
+  });
+
   it('no sessions anywhere → empty result, no crash', async () => {
     const summary = await mineAction({}, io);
     expect(summary.queued).toEqual([]);

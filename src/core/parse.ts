@@ -37,7 +37,9 @@ interface OpenBlock {
 }
 
 export function parseLedger(text: string, idPrefix: IdPrefix = 'D'): ParseResult {
-  const lines = text.split('\n');
+  // CRLF tolerance: a checkout with autocrlf (WSL/Windows) must not leave \r
+  // inside field values. Canonical output is always LF.
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
   const warnings: ParseWarning[] = [];
   const decisions: Decision[] = [];
   const preambleLines: string[] = [];
