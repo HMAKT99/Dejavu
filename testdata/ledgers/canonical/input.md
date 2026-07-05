@@ -1,6 +1,6 @@
 # Decisions
 
-Architectural and product decisions for this repository, kept by [DejaVu](https://github.com/arunkt/dejavu).
+Architectural and product decisions for this repository, kept by [DejaVu](https://github.com/HMAKT99/Dejavu).
 Agents and humans: treat `status: active` entries as binding. Changes append a superseding entry — history stays.
 
 ## D-001: Use Supabase RLS for authorization (not API-layer checks)

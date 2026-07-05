@@ -18,7 +18,7 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - uses: arunkt/dejavu@v0   # or: run `npx dejavu-dev check --all` directly
+      - uses: HMAKT99/Dejavu@v0   # or: run `npx dejavu-dev check --all` directly
         with:
           strict: false          # warn-first; flip to true when the team is ready
           scope: all
