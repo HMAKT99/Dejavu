@@ -17,9 +17,13 @@ export interface SessionFile {
 const MAX_SESSIONS = 25;
 const MAX_SESSION_BYTES = 50 * 1024 * 1024;
 
-/** Claude Code: ~/.claude/projects/<slug>/*.jsonl, slug = cwd with / and . → - */
+/**
+ * Claude Code: ~/.claude/projects/<slug>/*.jsonl, slug = cwd with path
+ * separators and dots flattened to dashes. Windows paths carry `\` and a
+ * drive colon — both must flatten too or the slug is an (invalid) raw path.
+ */
 export function claudeProjectSlug(repoRoot: string): string {
-  return repoRoot.replace(/[/.]/g, '-');
+  return repoRoot.replace(/[/\\:.]/g, '-');
 }
 
 export async function claudeCodeSessions(

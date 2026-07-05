@@ -1,0 +1,9 @@
+# Golden-file tests compare bytes: every text file must check out as LF on
+# every platform (Windows autocrlf would rewrite fixtures and break them).
+* text=auto eol=lf
+
+# Media and binaries are never eol-converted.
+*.gif binary
+*.mp4 binary
+*.png binary
+*.tgz binary
