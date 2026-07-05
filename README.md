@@ -101,7 +101,7 @@ Repos with *intentional* duplication (scaffolding templates, fixtures) can exclu
 
 ## Non-goals (v0.1)
 
-No cloud, no accounts, no telemetry, no embeddings/vector DB, no full AST analysis (heuristics that catch the common 80% beat perfect analysis that ships never), no PR review comments (that lane is taken), Windows via WSL.
+No cloud, no accounts, no telemetry, no embeddings/vector DB, no full AST analysis (heuristics that catch the common 80% beat perfect analysis that ships never), no PR review comments (that lane is taken). Windows: the full test suite passes natively in CI (experimental); WSL remains the recommended path.
 
 ## Contributing
 

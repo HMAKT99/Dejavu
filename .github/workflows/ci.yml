@@ -24,12 +24,10 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  windows-experimental:
-    # Informational: the supported Windows story is WSL (see README non-goals).
-    # This job tells us empirically how close native Windows is — it does not
-    # block the build.
+  windows:
+    # Native Windows passes the full suite as of 0.1.x — kept blocking so it
+    # stays that way. (Interactive/hook flows are still best-tested on WSL.)
     runs-on: windows-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
