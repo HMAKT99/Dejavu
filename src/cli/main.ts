@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { LedgerError } from '../core/ledger.js';
 import { LayerViolationError, SelfCheckError } from '../io/atomic.js';
 import { registerInit } from './commands/init.js';
+import { registerProject } from './commands/project.js';
 import { registerRemember } from './commands/remember.js';
 import { registerReview } from './commands/review.js';
 import { fail } from './ui.js';
@@ -17,6 +18,7 @@ const program = new Command()
 registerInit(program);
 registerRemember(program);
 registerReview(program);
+registerProject(program);
 
 try {
   await program.parseAsync(process.argv);

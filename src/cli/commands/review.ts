@@ -8,6 +8,7 @@ import { loadLedger, saveLedger } from '../../io/ledgerStore.js';
 import { loadQueue, saveQueue } from '../../io/queueStore.js';
 import { draftPreview, fail, info } from '../ui.js';
 import { healIndex, resolveWorkspace } from '../workspace.js';
+import { refreshExistingProjections } from './project.js';
 
 type Verdict = 'approve' | 'edit' | 'reject' | 'skip';
 
@@ -119,6 +120,15 @@ export function registerReview(program: Command): void {
         await saveLedger(ws.ledgerLoc, ledger, { now: () => new Date() });
       }
       await saveQueue(ws.queueLoc, remaining);
+
+      if (dirty && !flags.global) {
+        const refreshed = await refreshExistingProjections({
+          cwd: process.cwd(),
+          env: process.env,
+          now: () => new Date(),
+        });
+        for (const r of refreshed) p.log.success(`${r.target} — managed block refreshed`);
+      }
 
       const bits: string[] = [];
       if (approvedIds.length > 0)

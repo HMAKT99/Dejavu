@@ -1,4 +1,11 @@
+import { agentsMd } from './agents-md.js';
+import { claudeCode } from './claude-code.js';
+import { cursor } from './cursor.js';
+import { openclaw } from './openclaw.js';
 import type { ProjectionAdapter } from './types.js';
 
-/** Populated in Milestone 2 (claude-code, agents-md, cursor, openclaw). */
-export const adapters: ProjectionAdapter[] = [];
+export const adapters: ProjectionAdapter[] = [claudeCode, agentsMd, cursor, openclaw];
+
+export function findAdapter(name: string): ProjectionAdapter | undefined {
+  return adapters.find((a) => a.name === name);
+}

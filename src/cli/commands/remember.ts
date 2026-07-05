@@ -8,6 +8,7 @@ import { loadQueue, saveQueue } from '../../io/queueStore.js';
 import { info, ok, printWarnings, renderDecisionBlock } from '../ui.js';
 import { healIndex, resolveWorkspace } from '../workspace.js';
 import { type ActionIo, defaultIo } from './init.js';
+import { refreshExistingProjections } from './project.js';
 
 export interface RememberFlags {
   context?: string;
@@ -94,6 +95,10 @@ export function registerRemember(program: Command): void {
       );
       if (result.decision.supersedes && result.decision.supersedes.length > 0) {
         info(`${result.decision.supersedes.join(', ')} → status: superseded`);
+      }
+      if (!flags.global) {
+        const refreshed = await refreshExistingProjections(defaultIo());
+        for (const r of refreshed) ok(`${r.target} — managed block refreshed`);
       }
     });
 }

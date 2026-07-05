@@ -14,13 +14,14 @@ Think: git for code, **DejaVu for the *why***.
 
 ## Status
 
-Early development — Milestone 1 of 5. What works today:
+Early development — Milestone 2 of 5. What works today:
 
 - `DECISIONS.md` ledger: parse, canonical serialize, atomic writes with backup + a self-check gate that structurally cannot lose a decision
 - `dejavu init` — set up a repo (idempotent)
 - `dejavu remember` — record decisions with context, rules, globs, detection hints; supersede old ones
 - `dejavu review` — TUI over a candidate queue (approve / edit / reject / skip)
-- `--global` machine-level context (`~/.dejavu`) with hard layer separation, enforced in code and tests
+- `dejavu project` — inject active decisions into CLAUDE.md, AGENTS.md, .cursorrules, and OpenClaw MEMORY.md via managed blocks; auto-refreshed on every ledger change
+- `--global` machine-level context (`~/.dejavu`) with hard layer separation, enforced in code and tests; projected only into gitignored local files (CLAUDE.local.md)
 
 ## Quick start
 
@@ -78,10 +79,11 @@ Because the repo layer is committed, a collaborator's Cursor respects decisions 
 | `dejavu init` | Create `DECISIONS.md` + `.dejavu/` (idempotent) |
 | `dejavu remember "<title>"` | Record a decision. Flags: `--context`, `--rule`, `--applies-to <glob>` (repeatable), `--detect <regex>` (repeatable), `--supersedes <ids>`, `--queue`, `--global` |
 | `dejavu review` | Review queued candidates in a TUI: approve / edit / reject / skip |
+| `dejavu project` | Inject active decisions into agent context files. Flags: `--to <tool>` (claude-code, agents-md, cursor, openclaw), `--all`, `--check` (CI staleness gate), `--remove` (fully reversible), `--no-global` |
 
 ## Roadmap
 
-- **M2 — Inject**: project active decisions into managed blocks in `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, OpenClaw `MEMORY.md`; adapter interface is ~40 lines per tool
+- ~~**M2 — Inject**~~: ✅ managed blocks in `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, OpenClaw `MEMORY.md`; an adapter is ~15 lines ([src/adapters/](src/adapters/))
 - **M3 — Enforce**: `dejavu check` (contradiction + duplication radar), pre-commit hook, `dejavu score`
 - **M4 — Mine**: harvest decision moments from Claude Code / OpenClaw session transcripts into the review queue
 - **M5 — Serve**: MCP server (`search_decisions`, `check_against_decisions`), GitHub Action

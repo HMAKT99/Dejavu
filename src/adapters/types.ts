@@ -1,20 +1,24 @@
-import type { Ledger } from '../core/types.js';
-
 /**
- * A projection adapter teaches DejaVu how to speak one tool's context format
- * (CLAUDE.md, AGENTS.md, .cursorrules, ...). Implemented in Milestone 2;
- * the interface is fixed now so testdata/<tool>/ golden tests and community
- * adapters have a stable shape. One file per adapter, ~40 lines.
+ * A projection adapter teaches DejaVu how to reach one tool's context file
+ * (CLAUDE.md, AGENTS.md, .cursorrules, ...). Adapters are pure data + a
+ * detect predicate — the managed-block engine and renderer are shared, so a
+ * community adapter is ~20 lines. Golden tests live in testdata/<name>/.
  */
 export interface ProjectionAdapter {
   /** Stable adapter name, e.g. "claude-code", "cursor". */
   name: string;
-  /** Does this tool appear to be used in the repo at `repoRoot`? Pure check over a file listing. */
+  /** Human-facing label, e.g. "Claude Code (CLAUDE.md)". */
+  displayName: string;
+  /** Does this tool appear to be used here? `repoFiles` = repo-root entries. */
   detect(repoFiles: string[]): boolean;
-  /** Path (repo-relative) of the context file this adapter manages. */
+  /** Repo-relative path of the committed context file this adapter manages. */
   projectTarget(repoFiles: string[]): string;
-  /** Render the managed block content for this tool from the ledger. */
-  render(ledger: Ledger): string;
+  /**
+   * Repo-relative path of an UNCOMMITTED per-user context file, when the tool
+   * supports one (e.g. CLAUDE.local.md). This is the only place machine-level
+   * (G-) content may be projected — and it must be gitignored.
+   */
+  localTarget?: string;
   /** Optional (Milestone 4): where this tool keeps session transcripts, for mining. */
   readSessions?(machineHome: string): Promise<string[]>;
 }
