@@ -1,5 +1,26 @@
 # Launch plan
 
+## Phase A — welcome-mat distribution calendar (drafts in ../launch-drafts/, gitignored)
+
+Rules: 1–2 submissions/day max, never two GitHub PRs in the same hour, varied
+copy per venue (already drafted), each item user-approved right before sending.
+No cold PRs/issues to end-user repos — ever.
+
+| Date | Venue | Method | Draft | Status |
+|---|---|---|---|---|
+| 2026-07-08 | Official MCP Registry | mcp-publisher CLI | 01 | pending |
+| 2026-07-08 | mcp.so | web form | 04 | pending |
+| 2026-07-09 | punkpeye/awesome-mcp-servers | PR | 02 | pending |
+| 2026-07-10 | hesreallyhim/awesome-claude-code | issue form (NOT a PR) | 03 | pending |
+| 2026-07-10 | GitHub Action Marketplace | release-page checkbox | 07 | pending |
+| 2026-07-11 | Smithery | dashboard/CLI | 05 | pending |
+| 2026-07-11 | Glama | claim (check auto-ingest first) | 06 | pending |
+| 2026-07-12 | sdras/awesome-actions | PR | 08 | pending |
+| 2026-07-12 | PulseMCP | form (check auto-ingest first) | 10 | pending |
+| 2026-07-13 | Console.dev / JS Weekly / TLDR | forms, user email | 09 | pending |
+| +30 days | sindresorhus lists (awesome, awesome-nodejs) | PR (age rule) | — | blocked until ~08-05 |
+
+
 ## The story (lead with this everywhere)
 
 Month 3 is where vibecoded projects go to die. Features start breaking other

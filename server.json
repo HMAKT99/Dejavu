@@ -1,0 +1,30 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.HMAKT99/dejavu",
+  "title": "DejaVu",
+  "description": "Search your repo's decision ledger and check code for contradictions and duplicates before writing",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/HMAKT99/Dejavu",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/HMAKT99/Dejavu",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "dejavu-dev",
+      "version": "0.1.0",
+      "runtimeHint": "npx",
+      "runtimeArguments": [
+        {
+          "type": "positional",
+          "value": "serve",
+          "description": "run the stdio MCP server"
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

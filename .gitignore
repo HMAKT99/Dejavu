@@ -3,3 +3,4 @@ dist/
 dejavu
 *.tsbuildinfo
 .DS_Store
+launch-drafts/
