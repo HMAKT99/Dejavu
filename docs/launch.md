@@ -18,6 +18,8 @@ No cold PRs/issues to end-user repos — ever.
 | 2026-07-12 | sdras/awesome-actions | PR | 08 | pending |
 | 2026-07-12 | PulseMCP | form (check auto-ingest first) | 10 | pending |
 | 2026-07-13 | Console.dev / JS Weekly / TLDR | forms, user email | 09 | pending |
+| 2026-07-08 | Dogfood: agentreach + agentskills (local only — init, mine, score; user reviews queue) | dejavu CLI, no external activity | — | pending |
+| 2026-07-09 | Hermes support: docs/mcp.md section + good-first-issue on our repo (session mining) | local commit + gh issue | — | pending |
 | +30 days | sindresorhus lists (awesome, awesome-nodejs) | PR (age rule) | — | blocked until ~08-05 |
 
 
