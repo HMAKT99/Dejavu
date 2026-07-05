@@ -9,6 +9,7 @@ import { registerProject } from './commands/project.js';
 import { registerRemember } from './commands/remember.js';
 import { registerReview } from './commands/review.js';
 import { registerScore } from './commands/score.js';
+import { registerServe } from './commands/serve.js';
 import { fail } from './ui.js';
 import { VERSION } from './version.js';
 
@@ -27,6 +28,7 @@ registerCheck(program);
 registerScore(program);
 registerHooks(program);
 registerMine(program);
+registerServe(program);
 
 try {
   await program.parseAsync(process.argv);

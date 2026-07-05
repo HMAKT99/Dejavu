@@ -39,8 +39,20 @@ export function registerScore(program: Command): void {
     .command('score')
     .description('repo health score (duplication, contradictions, decision hygiene)')
     .option('--json', 'machine-readable output')
-    .action(async (flags: { json?: boolean }) => {
+    .option('--badge [path]', 'also write an SVG badge (default: dejavu-score.svg)')
+    .action(async (flags: { json?: boolean; badge?: string | boolean }) => {
       const card = await scoreAction(defaultIo());
+      if (flags.badge !== undefined && flags.badge !== false) {
+        const { renderBadge } = await import('../../enforce/badge.js');
+        const { writeFileAtomic } = await import('../../io/atomic.js');
+        const { resolveWorkspace } = await import('../workspace.js');
+        const nodePath = await import('node:path');
+        const ws = await resolveWorkspace({ cwd: process.cwd(), global: false });
+        const rel = typeof flags.badge === 'string' ? flags.badge : 'dejavu-score.svg';
+        const target = nodePath.join(ws.displayRoot, rel);
+        await writeFileAtomic(target, renderBadge(card), { ctx: ws.ledgerLoc.ctx });
+        console.log(`badge written to ${rel} — embed: ![DejaVu score](./${rel})`);
+      }
       if (flags.json) {
         console.log(JSON.stringify(card, null, 2));
         return;

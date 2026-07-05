@@ -1,0 +1,32 @@
+name: 'DejaVu Check'
+description: 'Check code against your DECISIONS.md — contradictions, duplication, stale agent context. Works on repos built with any AI tool.'
+branding:
+  icon: 'rewind'
+  color: 'purple'
+inputs:
+  strict:
+    description: 'Fail the job on findings (default: warn only)'
+    required: false
+    default: 'false'
+  scope:
+    description: '"changed" (default) or "all"'
+    required: false
+    default: 'changed'
+  check-projections:
+    description: 'Also fail if agent context files (CLAUDE.md etc.) are stale'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: dejavu check
+      shell: bash
+      run: |
+        ARGS=""
+        [ "${{ inputs.scope }}" = "all" ] && ARGS="--all"
+        [ "${{ inputs.strict }}" = "true" ] && ARGS="$ARGS --strict"
+        npx --yes dejavu-dev check $ARGS
+    - name: dejavu project --check
+      if: ${{ inputs.check-projections == 'true' }}
+      shell: bash
+      run: npx --yes dejavu-dev project --check

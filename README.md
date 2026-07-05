@@ -2,114 +2,100 @@
 
 **Your AI already wrote this.** DejaVu gives your codebase a memory that every coding agent shares — and none can ignore.
 
-Every AI coding session starts fresh. The decision to use Supabase RLS instead of API-layer auth was made three weeks ago, in a different tool, and is now invisible — so today's session quietly contradicts it. Month 3 is where vibecoded projects go to die. DejaVu is how yours survives it.
+```
+⚠ duplicate  lib/helpers.ts:4
+  makeUrlSlug() looks 98% like slugify() in utils/text.ts:2
+  your AI already wrote this — reuse it instead
+```
 
-DejaVu is a local CLI that:
+Every AI coding session starts fresh. The decision to use Supabase RLS instead of API-layer auth was made three weeks ago, in a different tool, and is now invisible — so today's session quietly contradicts it and rewrites `slugify()` for the fourth time. AI-assisted codebases accumulate duplication at up to **8x** the rate of hand-written ones, and tech debt compounds until the **Spaghetti Point** at ~month 3, where adding features starts breaking existing ones.
 
-1. **Captures decisions** — manually today (`dejavu remember`), mined automatically from your Claude Code / OpenClaw sessions soon
-2. **Projects them** into every agent's context (CLAUDE.md, AGENTS.md, .cursorrules, MCP) so decisions survive tool-switching *(Milestone 2)*
-3. **Enforces them** — flags code that contradicts a past decision or re-implements something that already exists *(Milestone 3)*
+**Month 3 is where vibecoded projects go to die. DejaVu is how yours survives it.**
 
-Think: git for code, **DejaVu for the *why***.
+## What it does
 
-## Status
+1. **Capture** — mines decisions from your Claude Code / OpenClaw session transcripts (heuristics, no LLM needed), harvests `#decision:` code comments, and takes `dejavu remember` for everything else. Every candidate goes through your review queue — nothing lands without your approval.
+2. **Inject** — projects active decisions into every agent's context via managed blocks in `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, OpenClaw `MEMORY.md` — and serves them over **MCP** to any agent that asks. Decisions survive tool-switching.
+3. **Enforce** — `dejavu check` flags code that contradicts a past decision or re-implements something that already exists. Runs as a CLI, a pre-commit hook, a GitHub Action, or a real-time agent hook. Warn-first; `--strict` when you mean it.
 
-Early development — Milestone 4 of 5. What works today:
-
-- `DECISIONS.md` ledger: parse, canonical serialize, atomic writes with backup + a self-check gate that structurally cannot lose a decision
-- `dejavu init` — set up a repo (idempotent)
-- `dejavu remember` — record decisions with context, rules, globs, detection hints; supersede old ones
-- `dejavu review` — TUI over a candidate queue (approve / edit / reject / skip)
-- `dejavu project` — inject active decisions into CLAUDE.md, AGENTS.md, .cursorrules, and OpenClaw MEMORY.md via managed blocks; auto-refreshed on every ledger change
-- `dejavu check` — contradiction detection (`detect:` regex scoped by `applies_to:` globs) + duplication radar (normalized-token similarity, exact-copy fast path; JS/TS/Python). ~0.9s on a 50k-LOC repo. Warn-first; `--strict` to block
-- `dejavu score` — 0–100 repo health (duplication %, contradictions, decision hygiene) with a letter grade
-- `dejavu hooks install` — pre-commit hook that warns (never blocks, unless `--strict`); refuses to touch hooks it didn't write
-- `dejavu mine` — harvest decision moments from Claude Code + OpenClaw session transcripts and `#decision:` code comments into the review queue, with confidence + evidence; conservative heuristics, no LLM required, rejections never resurface
-- `--global` machine-level context (`~/.dejavu`) with hard layer separation, enforced in code and tests; projected only into gitignored local files (CLAUDE.local.md)
+Mental model: **git for code, DejaVu for the *why*.**
 
 ## Quick start
 
 ```bash
-# not yet on npm — run from a clone:
-git clone https://github.com/arunkt/dejavu && cd dejavu
-npm install && npm run build && npm link
-
 cd your-project
-dejavu init
-dejavu remember "Use Supabase RLS for authorization" \
-  --context "auth bugs from duplicated API checks" \
-  --rule "all authorization goes through RLS policies" \
-  --applies-to "src/api/**" \
-  --detect "user_id\s*=="
+npx dejavu-dev init                # DECISIONS.md + .dejavu/ (+ optional pre-commit hook)
+npx dejavu-dev mine                # harvest decisions from your past Claude Code sessions
+npx dejavu-dev review              # approve / edit / reject each candidate
+npx dejavu-dev project             # push decisions into CLAUDE.md, .cursorrules, ...
+npx dejavu-dev check               # "did my last change contradict or duplicate anything?"
+npx dejavu-dev score               # 0-100 repo health, letter grade, shareable badge
 ```
 
-That appends to `DECISIONS.md`:
+Try it on the included wreck: [`examples/spaghetti-app`](examples/spaghetti-app) — a month-3 fixture with a planted contradiction and two AI-rewritten duplicates.
+
+## Why not …?
+
+| | ADR tools (AgDR, adr-agent) | PR review bots (Qodo, CodeAnt) | Agent memory (Mem0, Cipher) | **DejaVu** |
+|---|---|---|---|---|
+| Automatic capture from sessions | ✗ (human discipline) | ✗ | ~ (facts, not decisions) | ✔ |
+| Works across every tool | ~ (docs only) | ✗ (their platform) | ✗ (per-framework) | ✔ (files + MCP) |
+| Enforcement against code | ✗ | ✔ (PR time, cloud) | ✗ | ✔ (local, pre-commit) |
+| Fully local | ✔ | ✗ | ~ | ✔ |
+| Free | ✔ | ✗ (enterprise seats) | ~ | ✔ (Apache-2.0) |
+
+ADR tools validated the problem but require the discipline that vibecoding removed. Review bots catch drift — at PR time, in the cloud, per seat. Memory tools store preferences, not decisions, and check nothing. DejaVu is the unclaimed combination: **capture + inject + enforce, local and free.**
+
+And the two-layer design is the part that travels: repo decisions live in `DECISIONS.md` **committed to git** — a collaborator's Cursor respects decisions your Claude Code made even if they never install DejaVu, because the repo itself is the export format. Your personal preferences live in `~/.dejavu/` and are **never** committed (enforced in code, proven by tests — including `git check-ignore`).
+
+## The decision format
 
 ```markdown
-## D-001: Use Supabase RLS for authorization
-- date: 2026-07-05 · source: manual · status: active
-- context: auth bugs from duplicated API checks
-- rule: all authorization goes through RLS policies
+## D-014: Use Supabase RLS for authorization (not API-layer checks)
+- date: 2026-07-04 · source: claude-code session · status: active
+- context: single-tenant app, auth bugs from duplicated API checks
+- rule: all authorization goes through RLS policies; no manual user_id filtering in API routes
 - applies_to: src/api/**
-- detect: user_id\s*==
+- detect: user_id\s*===?
+- supersedes: D-006
 ```
 
-Change your mind later — history stays:
-
-```bash
-dejavu remember "RLS plus edge-function checks for admin routes" --supersedes D-001
-# D-001 → status: superseded · superseded-by: D-002
-```
-
-## How it's designed
-
-**Two storage layers, deliberately split:**
-
-| Layer | Where | Contains | Committed? |
-|---|---|---|---|
-| Repo | `DECISIONS.md` + `.dejavu/` | project decisions (`D-…`) | yes — memory travels with `git clone` |
-| Machine | `~/.dejavu/` | your cross-project prefs (`G-…`) | **never** |
-
-Because the repo layer is committed, a collaborator's Cursor respects decisions your Claude Code made — even if they never installed DejaVu. And because the machine layer never touches the repo, your personal preferences can't leak into a client's codebase. Both rules are enforced in code (`src/io/atomic.ts`) and proven by tests (`tests/machine.test.ts`), not just documented.
-
-**Markdown is the source of truth.** `DECISIONS.md` is fully useful as plain markdown with zero tooling; `.dejavu/index.json` is a derived cache, always regenerable, automatically healed when missing or corrupt. Delete it any time.
-
-**Decisions are append-mostly.** Changing your mind appends a superseding entry and flips exactly two lines on the old one (`status`, `superseded-by`). Context, rule, and body are never rewritten — the history is the value.
+Plain markdown, fully useful with zero tooling. `applies_to:` globs and `detect:` regexes make a decision *enforceable*. Changing your mind appends a superseding entry — history is the value. `.dejavu/index.json` is a derived cache, always regenerable; **markdown is the source of truth**.
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `dejavu init` | Create `DECISIONS.md` + `.dejavu/` (idempotent) |
-| `dejavu remember "<title>"` | Record a decision. Flags: `--context`, `--rule`, `--applies-to <glob>` (repeatable), `--detect <regex>` (repeatable), `--supersedes <ids>`, `--queue`, `--global` |
-| `dejavu review` | Review queued candidates in a TUI: approve / edit / reject / skip |
-| `dejavu project` | Inject active decisions into agent context files. Flags: `--to <tool>` (claude-code, agents-md, cursor, openclaw), `--all`, `--check` (CI staleness gate), `--remove` (fully reversible), `--no-global` |
-| `dejavu check [files...]` | Check changed code against decisions. Flags: `--staged` (pre-commit), `--all`, `--strict` |
-| `dejavu score` | Repo health score with letter grade; `--json` for machines |
-| `dejavu hooks install/uninstall` | Manage the pre-commit hook; `install --strict` to make it block |
-| `dejavu mine` | Mine sessions + `#decision:` comments into the queue. Flags: `--source claude-code\|openclaw\|comments`, `--dry-run`, `--limit <n>` |
+| `dejavu init` | Set up a repo (idempotent); offers the pre-commit hook |
+| `dejavu remember "<title>"` | Record a decision: `--context`, `--rule`, `--applies-to`, `--detect`, `--supersedes`, `--queue`, `--global` |
+| `dejavu mine` | Harvest sessions + `#decision:` comments into the queue (`--source`, `--dry-run`, `--limit`) |
+| `dejavu review` | Approve / edit / reject queued candidates (TUI, shows confidence + evidence) |
+| `dejavu project` | Update managed blocks in agent context files (`--to`, `--all`, `--check`, `--remove`) |
+| `dejavu check [files]` | Contradictions + duplication on changed files (`--staged`, `--all`, `--strict`) |
+| `dejavu score` | Repo health 0–100 + grade (`--json`, `--badge` → local SVG) |
+| `dejavu hooks install` | Pre-commit hook — warns by default, `--strict` blocks |
+| `dejavu serve` | MCP server: `search_decisions`, `get_decision`, `check_against_decisions` ([docs/mcp.md](docs/mcp.md)) |
 
-## Roadmap
+**CI:** the [GitHub Action](docs/ci.md) runs `check` + projection staleness on any repo — including ones built entirely on web platforms (Lovable, Replit, Bolt), since the repo carries the ledger.
 
-- ~~**M2 — Inject**~~: ✅ managed blocks in `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, OpenClaw `MEMORY.md`; an adapter is ~15 lines ([src/adapters/](src/adapters/))
-- ~~**M3 — Enforce**~~: ✅ `dejavu check` (contradictions + duplication radar), pre-commit hook, `dejavu score`
-- ~~**M4 — Mine**~~: ✅ Claude Code + OpenClaw transcript mining and `#decision:` comment harvesting → review queue
-- **M5 — Serve**: MCP server (`search_decisions`, `check_against_decisions`), GitHub Action
+## Performance
 
-Non-goals: no cloud, no accounts, no telemetry, no embeddings. Local files, heuristics that catch the common 80%.
+`dejavu check` and `dejavu score` complete in **under 1 second on a 50k-LOC repo** (~2,400 functions) — measured, not aspirational. Pre-commit tolerance was the design budget (3s); heuristic extraction + normalized-token shingles with an inverted index get there without embeddings, AST parsers, or the network.
 
-## Development
+## Non-goals (v0.1)
+
+No cloud, no accounts, no telemetry, no embeddings/vector DB, no full AST analysis (heuristics that catch the common 80% beat perfect analysis that ships never), no PR review comments (that lane is taken), Windows via WSL.
+
+## Contributing
+
+The highest-leverage PR is a ~40-line adapter for your tool: [docs/adapters.md](docs/adapters.md). Golden-file tests make adapter PRs trivially verifiable — add a fixture folder, run `UPDATE_GOLDEN=1 npm test`, review the diff. Mining heuristics PRs are gated by the precision table in `tests/heuristics.test.ts`: new patterns must not fire on the noise set.
 
 ```bash
-npm install
-npm test              # vitest — golden-file, generative round-trip, destructive-path tests
-npm run typecheck     # tsc --noEmit
-npm run lint          # biome
-npm run build         # tsup → dist/cli.js
-npm run build:bin     # bun build --compile → ./dejavu single executable
+npm install && npm test       # 200+ tests: golden files, generative round-trips, injected fs failures
+npm run typecheck && npm run lint
+npm run build                 # tsup → dist/cli.js (what npx runs)
+npm run build:bin             # bun build --compile → single executable
 ```
-
-Golden fixtures in `testdata/ledgers/` double as the format spec; regenerate with `UPDATE_GOLDEN=1 npm test` and review the diff.
 
 ## License
 
