@@ -1,0 +1,21 @@
+{
+  "name": "dejavu-video",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Remotion project rendering the DejaVu install walkthrough (docs/media)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Install ../docs/media/install.mp4",
+    "render:gif": "remotion render src/index.ts Install ../docs/media/install.gif --codec=gif --every-nth-frame=2 --scale=0.5"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.484",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "remotion": "^4.0.484"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "typescript": "^6.0.3"
+  }
+}

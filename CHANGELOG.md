@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.1.0 — unreleased
+## 0.1.0 — 2026-07-05
 
-Initial release.
+Initial release — [dejavu-dev on npm](https://www.npmjs.com/package/dejavu-dev).
 
 - **Ledger**: `DECISIONS.md` decision format (tolerant parser, canonical
   serializer, supersede semantics, derived `.dejavu/index.json`); atomic

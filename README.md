@@ -12,6 +12,10 @@ Every AI coding session starts fresh. The decision to use Supabase RLS instead o
 
 **Month 3 is where vibecoded projects go to die. DejaVu is how yours survives it.**
 
+![DejaVu in 15 seconds: init, remember a decision, check catches a duplicate](docs/media/install.gif)
+
+<sub>15-second walkthrough — [MP4 version](docs/media/install.mp4) · rendered from [`video/`](video/) with Remotion</sub>
+
 ## What it does
 
 1. **Capture** — mines decisions from your Claude Code / OpenClaw session transcripts (heuristics, no LLM needed), harvests `#decision:` code comments, and takes `dejavu remember` for everything else. Every candidate goes through your review queue — nothing lands without your approval.
