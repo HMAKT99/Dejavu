@@ -1,0 +1,9 @@
+{"type": "mode", "sessionId": "abc", "mode": "default"}
+{"type": "user", "isMeta": false, "uuid": "u1", "timestamp": "2026-07-01T10:00:00Z", "message": {"role": "user", "content": "ok let's use pnpm instead of npm for this project."}}
+{"type": "user", "isMeta": true, "uuid": "u2", "message": {"role": "user", "content": "decision: THIS IS META AND MUST BE SKIPPED"}}
+{"type": "user", "isMeta": false, "uuid": "u3", "message": {"role": "user", "content": "<local-command-caveat>should be skipped entirely</local-command-caveat>"}}
+{"type": "assistant", "uuid": "a1", "message": {"role": "assistant", "content": [{"type": "thinking", "thinking": "secret decision: never mine thinking blocks"}, {"type": "text", "text": "Sounds good. decision: all timestamps stored as timestamptz in UTC."}]}}
+{"type": "user", "isSidechain": true, "uuid": "u4", "message": {"role": "user", "content": "we should always skip sidechains."}}
+{"type": "user", "uuid": "u5", "message": {"role": "user", "content": "we should never call the database from components. Also, should we use bun instead of node?"}}
+{"type": "assistant", "uuid": "a2", "message": {"role": "assistant", "content": [{"type": "tool_use", "id": "t1", "name": "Bash", "input": {"command": "echo 'decision: not conversation'"}}]}}
+this line is not json at all

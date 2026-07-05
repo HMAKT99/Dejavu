@@ -4,6 +4,7 @@ import { LayerViolationError, SelfCheckError } from '../io/atomic.js';
 import { registerCheck } from './commands/check.js';
 import { registerHooks } from './commands/hooks.js';
 import { registerInit } from './commands/init.js';
+import { registerMine } from './commands/mine.js';
 import { registerProject } from './commands/project.js';
 import { registerRemember } from './commands/remember.js';
 import { registerReview } from './commands/review.js';
@@ -25,6 +26,7 @@ registerProject(program);
 registerCheck(program);
 registerScore(program);
 registerHooks(program);
+registerMine(program);
 
 try {
   await program.parseAsync(process.argv);

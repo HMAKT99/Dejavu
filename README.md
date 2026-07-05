@@ -14,7 +14,7 @@ Think: git for code, **DejaVu for the *why***.
 
 ## Status
 
-Early development — Milestone 3 of 5. What works today:
+Early development — Milestone 4 of 5. What works today:
 
 - `DECISIONS.md` ledger: parse, canonical serialize, atomic writes with backup + a self-check gate that structurally cannot lose a decision
 - `dejavu init` — set up a repo (idempotent)
@@ -24,6 +24,7 @@ Early development — Milestone 3 of 5. What works today:
 - `dejavu check` — contradiction detection (`detect:` regex scoped by `applies_to:` globs) + duplication radar (normalized-token similarity, exact-copy fast path; JS/TS/Python). ~0.9s on a 50k-LOC repo. Warn-first; `--strict` to block
 - `dejavu score` — 0–100 repo health (duplication %, contradictions, decision hygiene) with a letter grade
 - `dejavu hooks install` — pre-commit hook that warns (never blocks, unless `--strict`); refuses to touch hooks it didn't write
+- `dejavu mine` — harvest decision moments from Claude Code + OpenClaw session transcripts and `#decision:` code comments into the review queue, with confidence + evidence; conservative heuristics, no LLM required, rejections never resurface
 - `--global` machine-level context (`~/.dejavu`) with hard layer separation, enforced in code and tests; projected only into gitignored local files (CLAUDE.local.md)
 
 ## Quick start
@@ -86,12 +87,13 @@ Because the repo layer is committed, a collaborator's Cursor respects decisions 
 | `dejavu check [files...]` | Check changed code against decisions. Flags: `--staged` (pre-commit), `--all`, `--strict` |
 | `dejavu score` | Repo health score with letter grade; `--json` for machines |
 | `dejavu hooks install/uninstall` | Manage the pre-commit hook; `install --strict` to make it block |
+| `dejavu mine` | Mine sessions + `#decision:` comments into the queue. Flags: `--source claude-code\|openclaw\|comments`, `--dry-run`, `--limit <n>` |
 
 ## Roadmap
 
 - ~~**M2 — Inject**~~: ✅ managed blocks in `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, OpenClaw `MEMORY.md`; an adapter is ~15 lines ([src/adapters/](src/adapters/))
 - ~~**M3 — Enforce**~~: ✅ `dejavu check` (contradictions + duplication radar), pre-commit hook, `dejavu score`
-- **M4 — Mine**: harvest decision moments from Claude Code / OpenClaw session transcripts into the review queue
+- ~~**M4 — Mine**~~: ✅ Claude Code + OpenClaw transcript mining and `#decision:` comment harvesting → review queue
 - **M5 — Serve**: MCP server (`search_decisions`, `check_against_decisions`), GitHub Action
 
 Non-goals: no cloud, no accounts, no telemetry, no embeddings. Local files, heuristics that catch the common 80%.

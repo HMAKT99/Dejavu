@@ -68,7 +68,14 @@ export function registerReview(program: Command): void {
         }
 
         const preview = draftPreview(item.draft, '(next id)');
-        p.note(serializeDecision(preview), `${i + 1}/${items.length} · from ${item.source}`);
+        let noteBody = serializeDecision(preview);
+        if (item.evidence && item.evidence.length > 0) {
+          const ev = item.evidence[0]!;
+          noteBody += `\n\n${pc.dim(`evidence: "${ev.excerpt ?? ''}"`)}\n${pc.dim(`from: ${ev.file ?? 'unknown'}`)}`;
+        }
+        const confidence =
+          item.confidence !== undefined ? ` · ${Math.round(item.confidence * 100)}%` : '';
+        p.note(noteBody, `${i + 1}/${items.length} · from ${item.source}${confidence}`);
 
         const verdict = (await p.select({
           message: 'What should happen to this decision?',

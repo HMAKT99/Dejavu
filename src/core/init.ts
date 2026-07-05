@@ -20,6 +20,7 @@ export interface InitState {
 
 export const DEJAVU_GITIGNORE = `# DejaVu local state — never commit these.
 queue.jsonl
+mined.json
 backup/
 `;
 
