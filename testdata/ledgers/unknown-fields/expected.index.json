@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "decisions": [
+    {
+      "id": "D-001",
+      "title": "Keep the monolith until 10k users",
+      "date": "2026-05-20",
+      "source": "manual",
+      "status": "active",
+      "rule": "one deployable; extract services only with a written decision"
+    }
+  ],
+  "warnings": []
+}

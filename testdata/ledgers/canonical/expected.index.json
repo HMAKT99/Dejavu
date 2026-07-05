@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "decisions": [
+    {
+      "id": "D-001",
+      "title": "Use Supabase RLS for authorization (not API-layer checks)",
+      "date": "2026-07-04",
+      "source": "claude-code session",
+      "status": "superseded",
+      "rule": "all authorization goes through RLS policies; no manual user_id filtering in API routes",
+      "appliesTo": [
+        "src/api/**",
+        "supabase/**"
+      ],
+      "detect": [
+        "user_id\\s*===?"
+      ],
+      "supersededBy": [
+        "D-002"
+      ]
+    },
+    {
+      "id": "D-002",
+      "title": "RLS plus edge-function checks for admin routes",
+      "date": "2026-07-05",
+      "source": "manual",
+      "status": "active",
+      "rule": "RLS everywhere; admin routes additionally verify the caller in the edge function",
+      "supersedes": [
+        "D-001"
+      ]
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,7 @@
+[
+  {
+    "line": 12,
+    "code": "missing-status",
+    "message": "D-2: no status on metadata line; treated as active"
+  }
+]

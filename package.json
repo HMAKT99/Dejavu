@@ -1,0 +1,51 @@
+{
+  "name": "dejavu-dev",
+  "version": "0.1.0",
+  "description": "Decision memory + enforcement for AI-assisted codebases. Your AI already wrote this.",
+  "keywords": [
+    "ai",
+    "claude-code",
+    "cursor",
+    "decisions",
+    "adr",
+    "agents",
+    "memory",
+    "vibecoding"
+  ],
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "dejavu": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "build:bin": "bun build --compile --define __DEJAVU_VERSION__=\"\\\"$npm_package_version\\\"\" src/cli/main.ts --outfile dejavu",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check src tests",
+    "format": "biome format --write src tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arunkt/dejavu.git"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "commander": "^15.0.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.2",
+    "@types/node": "^26.1.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

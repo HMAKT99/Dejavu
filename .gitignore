@@ -1,0 +1,5 @@
+node_modules/
+dist/
+dejavu
+*.tsbuildinfo
+.DS_Store

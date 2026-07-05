@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "decisions": [
+    {
+      "id": "D-007",
+      "title": "Use Tailwind for styling",
+      "date": "2026-06-10",
+      "source": "manual",
+      "status": "active",
+      "rule": "tailwind utility classes; no CSS modules"
+    },
+    {
+      "id": "D-007",
+      "title": "Use CSS modules for styling",
+      "date": "2026-06-11",
+      "source": "claude-code session",
+      "status": "active",
+      "rule": "CSS modules everywhere"
+    }
+  ],
+  "warnings": []
+}

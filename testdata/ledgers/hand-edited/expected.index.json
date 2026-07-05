@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "decisions": [
+    {
+      "id": "D-001",
+      "title": "use pnpm, never npm",
+      "date": "2026-06-01",
+      "source": "manual",
+      "status": "active",
+      "rule": "pnpm for all package operations",
+      "appliesTo": [
+        "package.json",
+        "pnpm-lock.yaml"
+      ]
+    },
+    {
+      "id": "D-2",
+      "title": "All dates in UTC",
+      "date": "2026-06-02",
+      "source": "claude-code session, pair review",
+      "status": "active",
+      "rule": "store timestamptz, render in the user's locale only at the edge"
+    }
+  ],
+  "warnings": []
+}
