@@ -31,6 +31,8 @@ Mental model: **git for code, DejaVu for the *why*.**
 
 ## Quick start
 
+No install needed — `npx` runs it. (Prefer a single-file binary with no Node at all? Grab it from [Releases](https://github.com/HMAKT99/Dejavu/releases).)
+
 ```bash
 cd your-project
 npx dejavu-dev init                # DECISIONS.md + .dejavu/ (+ optional pre-commit hook)
@@ -70,6 +72,19 @@ And the two-layer design is the part that travels: repo decisions live in `DECIS
 ```
 
 Plain markdown, fully useful with zero tooling. `applies_to:` globs and `detect:` regexes make a decision *enforceable*. Changing your mind appends a superseding entry — history is the value. `.dejavu/index.json` is a derived cache, always regenerable; **markdown is the source of truth**.
+
+## Works with
+
+| Tool | Inject | Mine sessions | Enforce |
+|---|---|---|---|
+| **Claude Code** | `CLAUDE.md` + gitignored `CLAUDE.local.md` for personal prefs | ✔ (`~/.claude/projects` transcripts) | pre-commit + [PostToolUse hook](docs/mcp.md) |
+| **Cursor** | `.cursorrules` | — | pre-commit |
+| **AGENTS.md tools** (Codex, Jules, Amp, …) | `AGENTS.md` | — | pre-commit |
+| **OpenClaw** | `MEMORY.md` | ✔ (cwd-scoped session transcripts) | pre-commit |
+| **Any MCP client** (Hermes Agent, Claude Desktop, next year's tools) | `dejavu serve` — decisions queryable mid-session | — | `check_against_decisions` before code is written |
+| **Web platforms** (Lovable, Replit, Bolt) | the repo itself: `DECISIONS.md` + context files arrive with the export | — | [GitHub Action](docs/ci.md) |
+
+New tools are supported the day they read `AGENTS.md` or speak MCP — and a dedicated adapter is [~40 lines](docs/adapters.md).
 
 ## Commands
 
